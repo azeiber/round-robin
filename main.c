@@ -1,5 +1,11 @@
 int main() 
-{
+{   
+    #include <stdio.h>
+    #include "scheduler.h"
+    
+    //#include <stdlib.h>
+    //#include <string.h>
+
     RoundRobinScheduler scheduler;
     initialize_scheduler(&scheduler);
 

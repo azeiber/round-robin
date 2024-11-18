@@ -1,21 +1,7 @@
+#include "scheduler.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define MAX_SONGS 100
-#define MAX_NAME_LEN 50
-
-typedef struct {
-    int user_id;
-    char song_name[MAX_NAME_LEN];
-} Song;
-
-typedef struct {
-    Song queue[MAX_SONGS];
-    int front;
-    int rear;
-    int size;
-} RoundRobinScheduler;
 
 // Initialize the scheduler
 void initialize_scheduler(RoundRobinScheduler *scheduler) {
