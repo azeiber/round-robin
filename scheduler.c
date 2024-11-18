@@ -1,54 +1,80 @@
 #include <stdio.h>
-#include <stdbool.h>
+#include <stdlib.h>
+#include <string.h>
 
-int main() {
-    int n; // Number of processes
-    int burst_times[20], remaining_times[20]; // Arrays for burst and remaining times
-    int completed = 0; // Number of completed processes
-    int current_time = 0; // Tracks current time
-    
-    // Input number of processes
-    printf("Enter number of processes: ");
-    scanf("%d", &n);
+#define MAX_SONGS 100
+#define MAX_NAME_LEN 50
 
-    // Input burst times for each process
-    for (int i = 0; i < n; i++) {
-        printf("Enter burst time for process %d: ", i + 1);
-        scanf("%d", &burst_times[i]);
-        remaining_times[i] = burst_times[i]; // Initially, remaining time is the burst time
+typedef struct {
+    int user_id;
+    char song_name[MAX_NAME_LEN];
+} Song;
+
+typedef struct {
+    Song queue[MAX_SONGS];
+    int front;
+    int rear;
+    int size;
+} RoundRobinScheduler;
+
+// Initialize the scheduler
+void initialize_scheduler(RoundRobinScheduler *scheduler) {
+    scheduler->front = 0;
+    scheduler->rear = -1;
+    scheduler->size = 0;
+}
+
+// Add a song to the scheduler
+void add_song(RoundRobinScheduler *scheduler, int user_id, const char *song_name) {
+    if (scheduler->size == MAX_SONGS) {
+        printf("Error: Queue is full!\n");
+        return;
     }
+    scheduler->rear = (scheduler->rear + 1) % MAX_SONGS;
+    scheduler->queue[scheduler->rear].user_id = user_id;
+    strncpy(scheduler->queue[scheduler->rear].song_name, song_name, MAX_NAME_LEN - 1);
+    scheduler->queue[scheduler->rear].song_name[MAX_NAME_LEN - 1] = '\0';
+    scheduler->size++;
+}
 
-    // Main loop: keep going until all processes are completed
-    while (completed < n) {
-        int time_quantum; // Define time quantum dynamically
+// Get the next song in the scheduler
+Song get_next_song(RoundRobinScheduler *scheduler) {
+    if (scheduler->size == 0) {
+        printf("Error: Queue is empty!\n");
+        Song empty_song = {0, ""};
+        return empty_song;
+    }
+    Song next_song = scheduler->queue[scheduler->front];
+    scheduler->front = (scheduler->front + 1) % MAX_SONGS;
+    scheduler->size--;
+    return next_song;
+}
 
-        // Input dynamic time quantum
-        printf("\nEnter time quantum for this round: ");
-        scanf("%d", &time_quantum);
+// Remove songs by a specific user
+void remove_user_songs(RoundRobinScheduler *scheduler, int user_id) {
+    int count = scheduler->size;
+    int temp_front = scheduler->front;
+    RoundRobinScheduler temp;
+    initialize_scheduler(&temp);
 
-        // Go through all processes in order
-        for (int i = 0; i < n; i++) {
-            // If process is already completed, skip it
-            if (remaining_times[i] == 0) {
-                continue;
-            }
-
-            // Check if process can finish in this time slice
-            if (remaining_times[i] <= time_quantum) {
-                current_time += remaining_times[i]; // Use the remaining time
-                printf("Process %d finishes at time %d\n", i + 1, current_time);
-                remaining_times[i] = 0; // Mark it as completed
-                completed++; // Increment completed count
-            } else {
-                // Process gets only the time quantum slice
-                current_time += time_quantum;
-                remaining_times[i] -= time_quantum;
-                printf("Process %d runs for %d units, remaining time: %d\n", 
-                       i + 1, time_quantum, remaining_times[i]);
-            }
+    for (int i = 0; i < count; i++) {
+        Song current_song = scheduler->queue[temp_front];
+        temp_front = (temp_front + 1) % MAX_SONGS;
+        if (current_song.user_id != user_id) {
+            add_song(&temp, current_song.user_id, current_song.song_name);
         }
     }
 
-    printf("\nAll processes are completed at time %d.\n", current_time);
-    return 0;
+    *scheduler = temp;
+}
+
+// Print the current queue
+void print_queue(RoundRobinScheduler *scheduler) {
+    int temp_front = scheduler->front;
+    printf("Current Queue:\n");
+    for (int i = 0; i < scheduler->size; i++) {
+        Song current_song = scheduler->queue[temp_front];
+        printf("User %d: %s\n", current_song.user_id, current_song.song_name);
+        temp_front = (temp_front + 1) % MAX_SONGS;
+    }
 }
