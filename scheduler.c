@@ -1,7 +1,8 @@
-#include "scheduler.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include "scheduler.h"
 
 // Initialize the scheduler
 void initialize_scheduler(RoundRobinScheduler *scheduler) {

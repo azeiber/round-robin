@@ -4,7 +4,7 @@ int main()
     #include "scheduler.h"
     
     //#include <stdlib.h>
-    //#include <string.h>
+    #include <string.h>
 
     RoundRobinScheduler scheduler;
     initialize_scheduler(&scheduler);
