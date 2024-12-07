@@ -1,32 +1,37 @@
+#ifndef RR_SCHEDULER_H
+#define RR_SCHEDULER_H
 
-#ifndef SCHEDULER_H
-#define SCHEDULER_H
+#include <stdio.h> //Standard I/O library for printing and input
+#define MAX_SONGS 100 //Maximum number of songs in the scheduler
+#define MAX_NAME_LEN 50 //Maximum length for song names
 
-#include <stdio.h>  // Include this only if necessary for I/O functions
-#include <string.h> // For string functions
-
-#define MAX_SONGS 100
-#define MAX_NAME_LEN 50
-
-// Song structure to store song information
-typedef struct {
-    int user_id;                 // ID of the user who added the song
-    char song_name[MAX_NAME_LEN]; // Name of the song
+typedef struct //Structure to represent a song with relevant metadata
+{
+    int user_id; //Unique identifier for the user who added the song
+    char song_name[MAX_NAME_LEN]; //Name of the song, stored as a string
+    int arrival_time;  //Time when the song was added to the scheduler
+    int remaining_time; //Remaining playtime for the song
+    int start_time;     //Time when the song starts playing for the first time
+    int completion_time; //Time when the song finishes playing
 } Song;
 
-// Scheduler structure to implement the round-robin queue
-typedef struct {
-    Song queue[MAX_SONGS];  // Array to store the song queue
-    int front;              // Index of the first song in the queue
-    int rear;               // Index of the last song in the queue
-    int size;               // Current size of the queue
-} RoundRobinScheduler;
+typedef struct //Structure to represent the round-robin song scheduler
+{
+    Song songs[MAX_SONGS];  //Array to store all songs in the scheduler
+    int song_count;   //Current count of songs in the scheduler
+    int current_time;  //Scheduler's internal clock to track time
+    int quantum_time;  //Time slice for each song's turn in the scheduler
+    int context_switch_time;  //Overhead time added when switching between songs
+} RRSongScheduler;
 
-// Function declarations
-void initialize_scheduler(RoundRobinScheduler *scheduler);
-void add_song(RoundRobinScheduler *scheduler, int user_id, const char *song_name);
-Song get_next_song(RoundRobinScheduler *scheduler);
-void remove_user_songs(RoundRobinScheduler *scheduler, int user_id);
-void print_queue(RoundRobinScheduler *scheduler);
+void initialize_scheduler(RRSongScheduler *scheduler, int quantum, int context_switch); //Initializes the scheduler with given quantum and context switch times
 
-#endif // SCHEDULER_H
+void add_song(RRSongScheduler *scheduler, int user_id, const char *song_name); //Adds a new song to the scheduler for a specific user
+
+void run_song_scheduler(RRSongScheduler *scheduler); //Runs the round-robin scheduling process to play songs
+
+void print_song_metrics(RRSongScheduler *scheduler); //Prints metrics for all songs, including start and completion times
+
+void remove_user_songs(RRSongScheduler *scheduler, int user_id); //Removes all songs associated with a specific user from the scheduler
+
+#endif

@@ -1,51 +1,99 @@
 #include <stdio.h>
-#include "scheduler.h"
-    
-//#include <stdlib.h>
+#include <stdlib.h>
 #include <string.h>
+#include <limits.h>
+#include "scheduler.h"
+
+int get_valid_integer(const char* prompt) //Function to get a valid integer input from the user
+{
+    int value; //Variable to store the validated integer
+    char input[100]; //Buffer to hold the user's input
+
+    while (1) 
+    {
+        printf("%s", prompt); //Displays the prompt to the user
+    
+        if (fgets(input, sizeof(input), stdin) == NULL) //Reads input from the user
+        {
+            printf("Error reading input. Please try again.\n");
+            continue; //Retry if input reading fails
+        }
+
+        input[strcspn(input, "\n")] = 0; //Removes the trailing newline character
+
+        char* endptr; //Pointer for error checking during conversion
+        long parsed_value = strtol(input, &endptr, 10); //Converts input to a long integer
+
+        if (*endptr == '\0' && parsed_value >= 0 && parsed_value <= INT_MAX) // Validate the converted value
+        {
+            return (int)parsed_value; //Returnss valid integer value
+        } else 
+        {
+            printf("Invalid input. Please enter a valid number.\n");
+        }
+    }
+}
 
 int main() 
 {   
-    RoundRobinScheduler scheduler;
-    initialize_scheduler(&scheduler);
+    RRSongScheduler scheduler; //Scheduler object to manage songs
 
-    int choice, user_id;
-    char song_name[MAX_NAME_LEN];
-    while (1) {
-        printf("\n1. Add Song\n2. Play Next Song\n3. Remove User Songs\n4. Print Queue\n5. Exit\n");
-        printf("Enter your choice: ");
-        scanf("%d", &choice);
+    //Prompts user to configure scheduler parameters
+    int quantum_time = get_valid_integer("Enter quantum time (song play slice): ");
+    int context_switch_time = get_valid_integer("Enter context switch time: ");
+    
+    initialize_scheduler(&scheduler, quantum_time, context_switch_time); //Initializes the scheduler with the provided parameters
 
-        switch (choice) {
-            case 1:
-                printf("Enter User ID: ");
-                scanf("%d", &user_id);
+    int choice, user_id; //Variables for user menu choices and user ID
+    char song_name[MAX_NAME_LEN]; //Buffer for song names
+
+    while (1)
+    { 
+        // Displays menu options to the user
+        printf("\n--- Music Round Robin Scheduler ---\n");
+        printf("1. Add Song\n");
+        printf("2. Play Songs\n");
+        printf("3. Remove User's Songs\n");
+        printf("4. Print Playlist Metrics\n");
+        printf("5. Exit\n");
+
+        choice = get_valid_integer("Enter your choice: "); //Get a valid menu choice from the user
+
+        switch (choice)
+        { 
+            case 1: //Add a new song to the scheduler
+                user_id = get_valid_integer("Enter User ID: "); //Get user ID
                 printf("Enter Song Name: ");
-                scanf(" %[^\n]s", song_name);  // Read a string with spaces
-                add_song(&scheduler, user_id, song_name);
+                fgets(song_name, MAX_NAME_LEN, stdin); //Get song name
+                song_name[strcspn(song_name, "\n")] = 0;  //Remove trailing newline
+                
+                add_song(&scheduler, user_id, song_name); //Add the song
+                printf("Song added successfully!\n");
                 break;
-            case 2: {
-                Song next_song = get_next_song(&scheduler);
-                if (next_song.user_id != 0) {
-                    printf("Now playing: User %d - %s\n", next_song.user_id, next_song.song_name);
-                }
+
+            case 2: //Play all songs using round-robin scheduling
+                run_song_scheduler(&scheduler);
+                printf("Playlist playback completed.\n");
                 break;
-            }
-            case 3:
-                printf("Enter User ID to remove all songs: ");
-                scanf("%d", &user_id);
-                remove_user_songs(&scheduler, user_id);
+
+            case 3: //Remove all songs for a specific user
+                user_id = get_valid_integer("Enter User ID to remove songs: "); //Get user ID
+                remove_user_songs(&scheduler, user_id); //Remove user's songs
+                printf("Songs for User %d removed.\n", user_id);
                 break;
-            case 4:
-                print_queue(&scheduler);
+
+            case 4: //Print metrics for all songs in the playlist
+                print_song_metrics(&scheduler);
                 break;
-            case 5:
+
+            case 5: //Exit the program
                 printf("Exiting...\n");
                 return 0;
-            default:
-                printf("Invalid choice. Try again.\n");
+
+            default: //Handle invalid menu choices
+                printf("Invalid choice. Please try again.\n");
         }
     }
 
-    return 0;
+    return 0; //Successful end of program
 }
