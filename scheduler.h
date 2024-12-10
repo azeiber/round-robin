@@ -13,6 +13,7 @@ typedef struct //Structure to represent a song with relevant metadata
     int remaining_time; //Remaining playtime for the song
     int start_time;     //Time when the song starts playing for the first time
     int completion_time; //Time when the song finishes playing
+    //int waiting_time;    //Tracks waiting time 
 } Song;
 
 typedef struct //Structure to represent the round-robin song scheduler

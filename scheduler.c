@@ -12,6 +12,7 @@ void initialize_scheduler(RRSongScheduler *scheduler, int quantum, int context_s
     scheduler->context_switch_time = context_switch; //Sets the context switch time
 }
 
+
 void add_song(RRSongScheduler *scheduler, int user_id, const char *song_name) //Function to add a song to the scheduler 
 {
     if (scheduler->song_count >= MAX_SONGS) //Checks if the scheduler has reached its maximum capacity
@@ -46,7 +47,7 @@ void run_song_scheduler(RRSongScheduler *scheduler) //Function to run the round-
             continue; //Continues to the next iteration
         }
 
-        if (current_song->start_time == -1) //Marks the start time if this is the first play of the song
+       if (current_song->start_time == -1) //Marks the start time if this is the first play of the song
         {
             current_song->start_time = scheduler->current_time;
         }
@@ -69,6 +70,7 @@ void run_song_scheduler(RRSongScheduler *scheduler) //Function to run the round-
 
         current_song_index = (current_song_index + 1) % scheduler->song_count; //Move to the next song in a circular queue manner
     }
+
 }
 
 void print_song_metrics(RRSongScheduler *scheduler) //Function to display metrics for all songs in the scheduler
@@ -99,3 +101,4 @@ void remove_user_songs(RRSongScheduler *scheduler, int user_id) //Function to re
 
     *scheduler = temp; //Replacess the original scheduler with the filtered one
 }
+

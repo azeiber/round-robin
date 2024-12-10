@@ -12,10 +12,10 @@ Our Features:
 How to Use:
 
 1. Compile the Program:
-    1. gcc main.c scheduler.c -o round-robin
-    2. ./round-robin
+    1. gcc -o music_scheduler main.c scheduler.c
+    2. ./music_scheduler
 2. Follow the menu options to interact with the scheduler:
-    1. Add Song: Add a song by entering a user ID and the song name.
+    1. Add Song: Add a song by entering a user ID and the song name. Add all songs in the beginning.
     2. Play Songs: Execute the round-robin scheduler and play all songs in the queue.
     3. Remove User's Songs: Remove all songs associated with a specific user.
     4. Print Playlist Metrics: View detailed metrics for all songs in the scheduler.
